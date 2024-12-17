@@ -24,7 +24,7 @@
 //!  - Using a [`RollingFileAppender`][rolling_struct] to perform writes to a log file. This will block on writes.
 //!  - Using *any* type implementing [`std::io::Write`][write] in a non-blocking fashion.
 //!  - Using a combination of [`NonBlocking`][non_blocking] and [`RollingFileAppender`][rolling_struct] to allow writes to a log file
-//! without blocking.
+//!    without blocking.
 //!
 //! ## File Appender
 //!
@@ -153,7 +153,8 @@
     overflowing_literals,
     path_statements,
     patterns_in_fns_without_body,
-    private_in_public,
+    private_interfaces,
+    private_bounds,
     unconditional_recursion,
     unused,
     unused_allocation,

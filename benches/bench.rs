@@ -4,7 +4,7 @@ use std::{
     time::Instant,
 };
 use tracing::{event, Level};
-use tracing_appender::non_blocking;
+use tracing_appender_plus::non_blocking;
 use tracing_subscriber::fmt::MakeWriter;
 
 // a no-op writer is used in order to measure the overhead incurred by
@@ -18,7 +18,7 @@ impl NoOpWriter {
     }
 }
 
-impl<'a> MakeWriter<'a> for NoOpWriter {
+impl MakeWriter<'_> for NoOpWriter {
     type Writer = NoOpWriter;
 
     fn make_writer(&self) -> Self::Writer {
