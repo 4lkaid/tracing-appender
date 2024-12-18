@@ -1,6 +1,6 @@
 [package]
 name = "tracing-appender-plus"
-version = "0.2.3"
+version = "0.2.4"
 authors = [
     "Zeki Sherif <zekshi@amazon.com>",
     "Tokio Contributors <team@tokio.rs>",
@@ -8,8 +8,8 @@ authors = [
 ]
 license = "MIT"
 readme = "README.md"
-repository = "https://github.com/tokio-rs/tracing"
-homepage = "https://tokio.rs"
+repository = "https://github.com/4lkaid/tracing-appender"
+homepage = "https://github.com/4lkaid/tracing-appender"
 description = "Sync with tracing-appender and support rolling with local time"
 categories = ["development-tools::debugging", "asynchronous"]
 keywords = ["logging", "tracing", "file-appender", "non-blocking-writer"]

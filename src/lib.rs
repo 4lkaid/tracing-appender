@@ -17,7 +17,9 @@
 //!
 //! Add the following to your `Cargo.toml`:
 //! ```toml
-//! tracing-appender = "0.2"
+//! tracing-appender = { package = "tracing-appender-plus", version = "0.2", features = [
+//!     "local-time",
+//! ] }
 //! ```
 //!
 //! This crate can be used in a few ways to record spans/events:
