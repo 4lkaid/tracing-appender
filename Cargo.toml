@@ -1,6 +1,6 @@
 [package]
 name = "tracing-appender-plus"
-version = "0.2.4"
+version = "0.2.5"
 authors = [
     "Zeki Sherif <zekshi@amazon.com>",
     "Tokio Contributors <team@tokio.rs>",
@@ -35,7 +35,7 @@ default-features = false
 features = ["fmt", "std"]
 
 [dev-dependencies]
-criterion = { version = "0.5", default-features = false }
+criterion = { version = "0.8", default-features = false }
 tracing = "0.1"
 tempfile = "3"
 

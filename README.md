@@ -5,6 +5,7 @@ Sync with [tracing-appender](https://crates.io/crates/tracing-appender) and supp
 ## Usage
 
 Add the following to your `Cargo.toml`:
+
 ```toml
 tracing-appender = { package = "tracing-appender-plus", version = "0.2", features = [
     "local-time",
@@ -17,3 +18,4 @@ tracing-appender = { package = "tracing-appender-plus", version = "0.2", feature
 | ---------------- | --------------------- |
 | v0.2.3           | v0.2.3                |
 | v0.2.3           | v0.2.4                |
+| v0.2.4           | v0.2.5                |

@@ -1,3 +1,25 @@
+# 0.2.4 (November 26, 2025)
+
+### Added
+
+- Prune old files at startup ([#2966])
+- Add fallback to file creation date ([#3000])
+- Introduce weekly rotation ([#3218])
+
+### Fixed
+
+- Fix `max_files` integer underflow when set to zero ([#3348])
+
+### Documented
+
+- Update tracing-appender docs link to correct docs.rs URL ([#3325])
+
+[#2966]: https://github.com/tokio-rs/tracing/pull/#2966
+[#3000]: https://github.com/tokio-rs/tracing/pull/#3000
+[#3218]: https://github.com/tokio-rs/tracing/pull/#3218
+[#3325]: https://github.com/tokio-rs/tracing/pull/#3325
+[#3348]: https://github.com/tokio-rs/tracing/pull/#3348
+
 # 0.2.3 (November 13, 2023)
 
 This release contains several new features. It also increases the
@@ -9,7 +31,7 @@ minimum supported Rust version (MSRV) to Rust 1.63.0.
 - **non_blocking**: allow worker thread name to be configured ([#2365])
 - **rolling**: add a builder for constructing `RollingFileAppender`s ([#2227])
 - **rolling**: add `Builder::filename_suffix` parameter ([#2225])
-- **non_blocking**: remove `Sync` bound from writer for `NonBlocking` ([#2607]) 
+- **non_blocking**: remove `Sync` bound from writer for `NonBlocking` ([#2607])
 - **non_blocking**: name spawned threads ([#2219])
 
 ### Fixed
@@ -79,6 +101,7 @@ This breaking change release adds support for the new v0.3.x series of
 `chrono` crate, [RUSTSEC-2020-0159].
 
 This release increases the minimum supported Rust version to 1.51.0.
+
 ### Breaking Changes
 
 - Updated `tracing-subscriber` to v0.3.x ([#1677])
@@ -127,7 +150,7 @@ Thanks to new contributors @dzvon and @zvkemp for contributing to this release!
 
 - Fixed broken links in docs (#718)
 - `tracing-appender` now only enables the necessary `tracing-subscriber`'s
-  feature flags, rather than all of them (#779) 
+  feature flags, rather than all of them (#779)
 
 Thanks to new contributors @ericjheinz and @sourcefrog for contributing
 to this release!

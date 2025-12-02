@@ -1,6 +1,6 @@
 //! A rolling file appender.
 //!
-//! Creates a new log file at a fixed frequency as defined by [`Rotation`][self::Rotation].
+//! Creates a new log file at a fixed frequency as defined by [`Rotation`].
 //! Logs will be written to this file for the duration of the period and will automatically roll over
 //! to the newly created log file once the time period has elapsed.
 //!
@@ -22,7 +22,7 @@
 //!
 //! ```rust
 //! # fn docs() {
-//! use tracing_appender::rolling::{RollingFileAppender, Rotation};
+//! use tracing_appender_plus::rolling::{RollingFileAppender, Rotation};
 //! let file_appender = RollingFileAppender::new(Rotation::HOURLY, "/some/directory", "prefix.log");
 //! # }
 //! ```
@@ -34,7 +34,7 @@ use std::{
     path::{Path, PathBuf},
     sync::atomic::{AtomicUsize, Ordering},
 };
-use time::{format_description, Date, Duration, OffsetDateTime, Time};
+use time::{format_description, Date, Duration, OffsetDateTime, PrimitiveDateTime, Time};
 
 mod builder;
 pub use builder::{Builder, InitError};
@@ -58,7 +58,7 @@ pub use builder::{Builder, InitError};
 ///
 /// ```rust
 /// # fn docs() {
-/// let file_appender = tracing_appender::rolling::hourly("/some/directory", "prefix");
+/// let file_appender = tracing_appender_plus::rolling::hourly("/some/directory", "prefix");
 /// # }
 /// ```
 ///
@@ -69,7 +69,7 @@ pub use builder::{Builder, InitError};
 /// use tracing_subscriber::fmt::writer::MakeWriterExt;
 ///
 /// // Log all events to a rolling log file.
-/// let logfile = tracing_appender::rolling::hourly("/logs", "myapp-logs");
+/// let logfile = tracing_appender_plus::rolling::hourly("/logs", "myapp-logs");
 ///
 /// // Log `INFO` and above to stdout.
 /// let stdout = std::io::stdout.with_max_level(tracing::Level::INFO);
@@ -116,9 +116,9 @@ impl RollingFileAppender {
     /// Creates a new `RollingFileAppender`.
     ///
     /// A `RollingFileAppender` will have a fixed rotation whose frequency is
-    /// defined by [`Rotation`][self::Rotation]. The `directory` and
-    /// `file_name_prefix` arguments determine the location and file name's _prefix_
-    /// of the log file. `RollingFileAppender` will automatically append the current date
+    /// defined by [`Rotation`]. The `directory` and `file_name_prefix`
+    /// arguments determine the location and file name's _prefix_ of the log
+    /// file. `RollingFileAppender` will automatically append the current date
     /// and hour (UTC format) to the file name.
     ///
     /// Alternatively, a `RollingFileAppender` can be constructed using one of the following helpers:
@@ -134,7 +134,7 @@ impl RollingFileAppender {
     ///
     /// ```rust
     /// # fn docs() {
-    /// use tracing_appender::rolling::{RollingFileAppender, Rotation};
+    /// use tracing_appender_plus::rolling::{RollingFileAppender, Rotation};
     /// let file_appender = RollingFileAppender::new(Rotation::HOURLY, "/some/directory", "prefix.log");
     /// # }
     /// ```
@@ -168,7 +168,7 @@ impl RollingFileAppender {
     ///
     /// ```rust
     /// # fn docs() {
-    /// use tracing_appender::rolling::{RollingFileAppender, Rotation};
+    /// use tracing_appender_plus::rolling::{RollingFileAppender, Rotation};
     ///
     /// let file_appender = RollingFileAppender::builder()
     ///     .rotation(Rotation::HOURLY) // rotate log files once every hour
@@ -219,7 +219,13 @@ impl RollingFileAppender {
         return (self.now)();
 
         #[cfg(not(test))]
-        OffsetDateTime::now_utc()
+        {
+            #[cfg(feature = "local-time")]
+            return OffsetDateTime::now_local()
+                .expect("Invalid local-time; this is a bug in tracing-appender");
+            #[cfg(not(feature = "local-time"))]
+            return OffsetDateTime::now_utc();
+        }
     }
 }
 
@@ -283,8 +289,8 @@ impl fmt::Debug for RollingFileAppender {
 /// # #[clippy::allow(needless_doctest_main)]
 /// fn main () {
 /// # fn doc() {
-///     let appender = tracing_appender::rolling::minutely("/some/path", "rolling.log");
-///     let (non_blocking_appender, _guard) = tracing_appender::non_blocking(appender);
+///     let appender = tracing_appender_plus::rolling::minutely("/some/path", "rolling.log");
+///     let (non_blocking_appender, _guard) = tracing_appender_plus::non_blocking(appender);
 ///
 ///     let subscriber = tracing_subscriber::fmt().with_writer(non_blocking_appender);
 ///
@@ -318,8 +324,8 @@ pub fn minutely(
 /// # #[clippy::allow(needless_doctest_main)]
 /// fn main () {
 /// # fn doc() {
-///     let appender = tracing_appender::rolling::hourly("/some/path", "rolling.log");
-///     let (non_blocking_appender, _guard) = tracing_appender::non_blocking(appender);
+///     let appender = tracing_appender_plus::rolling::hourly("/some/path", "rolling.log");
+///     let (non_blocking_appender, _guard) = tracing_appender_plus::non_blocking(appender);
 ///
 ///     let subscriber = tracing_subscriber::fmt().with_writer(non_blocking_appender);
 ///
@@ -344,9 +350,9 @@ pub fn hourly(
 /// a non-blocking, daily file appender.
 ///
 /// A `RollingFileAppender` has a fixed rotation whose frequency is
-/// defined by [`Rotation`][self::Rotation]. The `directory` and
-/// `file_name_prefix` arguments determine the location and file name's _prefix_
-/// of the log file. `RollingFileAppender` automatically appends the current date in UTC.
+/// defined by [`Rotation`]. The `directory` and `file_name_prefix`
+/// arguments determine the location and file name's _prefix_ of the log file.
+/// `RollingFileAppender` automatically appends the current date in UTC.
 ///
 /// # Examples
 ///
@@ -354,8 +360,8 @@ pub fn hourly(
 /// # #[clippy::allow(needless_doctest_main)]
 /// fn main () {
 /// # fn doc() {
-///     let appender = tracing_appender::rolling::daily("/some/path", "rolling.log");
-///     let (non_blocking_appender, _guard) = tracing_appender::non_blocking(appender);
+///     let appender = tracing_appender_plus::rolling::daily("/some/path", "rolling.log");
+///     let (non_blocking_appender, _guard) = tracing_appender_plus::non_blocking(appender);
 ///
 ///     let subscriber = tracing_subscriber::fmt().with_writer(non_blocking_appender);
 ///
@@ -366,12 +372,48 @@ pub fn hourly(
 /// }
 /// ```
 ///
-/// This will result in a log file located at `/some/path/rolling.log.yyyy-MM-dd-HH`.
+/// This will result in a log file located at `/some/path/rolling.log.yyyy-MM-dd`.
 pub fn daily(
     directory: impl AsRef<Path>,
     file_name_prefix: impl AsRef<Path>,
 ) -> RollingFileAppender {
     RollingFileAppender::new(Rotation::DAILY, directory, file_name_prefix)
+}
+
+/// Creates a weekly-rotating file appender. The logs will rotate every Sunday at midnight UTC.
+///
+/// The appender returned by `rolling::weekly` can be used with `non_blocking` to create
+/// a non-blocking, weekly file appender.
+///
+/// A `RollingFileAppender` has a fixed rotation whose frequency is
+/// defined by [`Rotation`]. The `directory` and `file_name_prefix` arguments
+/// determine the location and file name's _prefix_ of the log file.
+/// `RollingFileAppender` automatically appends the current date in UTC.
+///
+/// # Examples
+///
+/// ``` rust
+/// # #[clippy::allow(needless_doctest_main)]
+/// fn main () {
+/// # fn doc() {
+///     let appender = tracing_appender_plus::rolling::weekly("/some/path", "rolling.log");
+///     let (non_blocking_appender, _guard) = tracing_appender_plus::non_blocking(appender);
+///
+///     let subscriber = tracing_subscriber::fmt().with_writer(non_blocking_appender);
+///
+///     tracing::subscriber::with_default(subscriber.finish(), || {
+///         tracing::event!(tracing::Level::INFO, "Hello");
+///     });
+/// # }
+/// }
+/// ```
+///
+/// This will result in a log file located at `/some/path/rolling.log.yyyy-MM-dd`.
+pub fn weekly(
+    directory: impl AsRef<Path>,
+    file_name_prefix: impl AsRef<Path>,
+) -> RollingFileAppender {
+    RollingFileAppender::new(Rotation::WEEKLY, directory, file_name_prefix)
 }
 
 /// Creates a non-rolling file appender.
@@ -388,8 +430,8 @@ pub fn daily(
 /// # #[clippy::allow(needless_doctest_main)]
 /// fn main () {
 /// # fn doc() {
-///     let appender = tracing_appender::rolling::never("/some/path", "non-rolling.log");
-///     let (non_blocking_appender, _guard) = tracing_appender::non_blocking(appender);
+///     let appender = tracing_appender_plus::rolling::never("/some/path", "non-rolling.log");
+///     let (non_blocking_appender, _guard) = tracing_appender_plus::non_blocking(appender);
 ///
 ///     let subscriber = tracing_subscriber::fmt().with_writer(non_blocking_appender);
 ///
@@ -412,32 +454,40 @@ pub fn never(directory: impl AsRef<Path>, file_name: impl AsRef<Path>) -> Rollin
 /// ### Minutely Rotation
 /// ```rust
 /// # fn docs() {
-/// use tracing_appender::rolling::Rotation;
-/// let rotation = tracing_appender::rolling::Rotation::MINUTELY;
+/// use tracing_appender_plus::rolling::Rotation;
+/// let rotation = tracing_appender_plus::rolling::Rotation::MINUTELY;
 /// # }
 /// ```
 ///
 /// ### Hourly Rotation
 /// ```rust
 /// # fn docs() {
-/// use tracing_appender::rolling::Rotation;
-/// let rotation = tracing_appender::rolling::Rotation::HOURLY;
+/// use tracing_appender_plus::rolling::Rotation;
+/// let rotation = tracing_appender_plus::rolling::Rotation::HOURLY;
 /// # }
 /// ```
 ///
 /// ### Daily Rotation
 /// ```rust
 /// # fn docs() {
-/// use tracing_appender::rolling::Rotation;
-/// let rotation = tracing_appender::rolling::Rotation::DAILY;
+/// use tracing_appender_plus::rolling::Rotation;
+/// let rotation = tracing_appender_plus::rolling::Rotation::DAILY;
+/// # }
+/// ```
+///
+/// ### Weekly Rotation
+/// ```rust
+/// # fn docs() {
+/// use tracing_appender_plus::rolling::Rotation;
+/// let rotation = tracing_appender_plus::rolling::Rotation::WEEKLY;
 /// # }
 /// ```
 ///
 /// ### No Rotation
 /// ```rust
 /// # fn docs() {
-/// use tracing_appender::rolling::Rotation;
-/// let rotation = tracing_appender::rolling::Rotation::NEVER;
+/// use tracing_appender_plus::rolling::Rotation;
+/// let rotation = tracing_appender_plus::rolling::Rotation::NEVER;
 /// # }
 /// ```
 #[derive(Clone, Eq, PartialEq, Debug)]
@@ -448,31 +498,40 @@ enum RotationKind {
     Minutely,
     Hourly,
     Daily,
+    Weekly,
     Never,
 }
 
 impl Rotation {
-    /// Provides an minutely rotation
+    /// Provides a minutely rotation.
     pub const MINUTELY: Self = Self(RotationKind::Minutely);
-    /// Provides an hourly rotation
+    /// Provides an hourly rotation.
     pub const HOURLY: Self = Self(RotationKind::Hourly);
-    /// Provides a daily rotation
+    /// Provides a daily rotation.
     pub const DAILY: Self = Self(RotationKind::Daily);
+    /// Provides a weekly rotation that rotates every Sunday at midnight UTC.
+    pub const WEEKLY: Self = Self(RotationKind::Weekly);
     /// Provides a rotation that never rotates.
     pub const NEVER: Self = Self(RotationKind::Never);
 
+    /// Determines the next date that we should round to or `None` if `self` uses [`Rotation::NEVER`].
     pub(crate) fn next_date(&self, current_date: &OffsetDateTime) -> Option<OffsetDateTime> {
         let unrounded_next_date = match *self {
             Rotation::MINUTELY => *current_date + Duration::minutes(1),
             Rotation::HOURLY => *current_date + Duration::hours(1),
             Rotation::DAILY => *current_date + Duration::days(1),
+            Rotation::WEEKLY => *current_date + Duration::weeks(1),
             Rotation::NEVER => return None,
         };
-        Some(self.round_date(&unrounded_next_date))
+        Some(self.round_date(unrounded_next_date))
     }
 
-    // note that this method will panic if passed a `Rotation::NEVER`.
-    pub(crate) fn round_date(&self, date: &OffsetDateTime) -> OffsetDateTime {
+    /// Rounds the date towards the past using the [`Rotation`] interval.
+    ///
+    /// # Panics
+    ///
+    /// This method will panic if `self`` uses [`Rotation::NEVER`].
+    pub(crate) fn round_date(&self, date: OffsetDateTime) -> OffsetDateTime {
         match *self {
             Rotation::MINUTELY => {
                 let time = Time::from_hms(date.hour(), date.minute(), 0)
@@ -489,6 +548,14 @@ impl Rotation {
                     .expect("Invalid time; this is a bug in tracing-appender");
                 date.replace_time(time)
             }
+            Rotation::WEEKLY => {
+                let zero_time = Time::from_hms(0, 0, 0)
+                    .expect("Invalid time; this is a bug in tracing-appender");
+
+                let days_since_sunday = date.weekday().number_days_from_sunday();
+                let date = date - Duration::days(days_since_sunday.into());
+                date.replace_time(zero_time)
+            }
             // Rotation::NEVER is impossible to round.
             Rotation::NEVER => {
                 unreachable!("Rotation::NEVER is impossible to round.")
@@ -501,6 +568,7 @@ impl Rotation {
             Rotation::MINUTELY => format_description::parse("[year]-[month]-[day]-[hour]-[minute]"),
             Rotation::HOURLY => format_description::parse("[year]-[month]-[day]-[hour]"),
             Rotation::DAILY => format_description::parse("[year]-[month]-[day]"),
+            Rotation::WEEKLY => format_description::parse("[year]-[month]-[day]"),
             Rotation::NEVER => format_description::parse("[year]-[month]-[day]"),
         }
         .expect("Unable to create a formatter; this is a bug in tracing-appender")
@@ -547,15 +615,27 @@ impl Inner {
             rotation,
             max_files,
         };
+
+        if let Some(max_files) = max_files {
+            inner.prune_old_logs(max_files);
+        }
+
         let filename = inner.join_date(&now);
         let writer = RwLock::new(create_writer(inner.log_directory.as_ref(), &filename)?);
         Ok((inner, writer))
     }
 
+    /// Returns the full filename for the provided date, using [`Rotation`] to round accordingly.
     pub(crate) fn join_date(&self, date: &OffsetDateTime) -> String {
-        let date = date
-            .format(&self.date_format)
-            .expect("Unable to format OffsetDateTime; this is a bug in tracing-appender");
+        let date = if let Rotation::NEVER = self.rotation {
+            date.format(&self.date_format)
+                .expect("Unable to format OffsetDateTime; this is a bug in tracing-appender")
+        } else {
+            self.rotation
+                .round_date(*date)
+                .format(&self.date_format)
+                .expect("Unable to format OffsetDateTime; this is a bug in tracing-appender")
+        };
 
         match (
             &self.rotation,
@@ -606,7 +686,24 @@ impl Inner {
                     return None;
                 }
 
-                let created = metadata.created().ok()?;
+                let created = metadata.created().ok().or_else(|| {
+                    let mut datetime = filename;
+                    if let Some(prefix) = &self.log_filename_prefix {
+                        datetime = datetime.strip_prefix(prefix)?;
+                        datetime = datetime.strip_prefix('.')?;
+                    }
+                    if let Some(suffix) = &self.log_filename_suffix {
+                        datetime = datetime.strip_suffix(suffix)?;
+                        datetime = datetime.strip_suffix('.')?;
+                    }
+
+                    Some(
+                        PrimitiveDateTime::parse(datetime, &self.date_format)
+                            .ok()?
+                            .assume_utc()
+                            .into(),
+                    )
+                })?;
                 Some((entry, created))
             })
             .collect::<Vec<_>>()
@@ -752,7 +849,7 @@ mod test {
 
     #[test]
     fn write_minutely_log() {
-        test_appender(Rotation::HOURLY, "minutely.log");
+        test_appender(Rotation::MINUTELY, "minutely.log");
     }
 
     #[test]
@@ -763,6 +860,11 @@ mod test {
     #[test]
     fn write_daily_log() {
         test_appender(Rotation::DAILY, "daily.log");
+    }
+
+    #[test]
+    fn write_weekly_log() {
+        test_appender(Rotation::WEEKLY, "weekly.log");
     }
 
     #[test]
@@ -782,10 +884,16 @@ mod test {
         let next = Rotation::HOURLY.next_date(&now).unwrap();
         assert_eq!((now + Duration::HOUR).hour(), next.hour());
 
-        // daily-basis
+        // per-day basis
         let now = OffsetDateTime::now_utc();
         let next = Rotation::DAILY.next_date(&now).unwrap();
         assert_eq!((now + Duration::DAY).day(), next.day());
+
+        // per-week basis
+        let now = OffsetDateTime::now_utc();
+        let now_rounded = Rotation::WEEKLY.round_date(now);
+        let next = Rotation::WEEKLY.next_date(&now).unwrap();
+        assert!(now_rounded < next);
 
         // never
         let now = OffsetDateTime::now_utc();
@@ -794,12 +902,91 @@ mod test {
     }
 
     #[test]
+    fn test_join_date() {
+        struct TestCase {
+            expected: &'static str,
+            rotation: Rotation,
+            prefix: Option<&'static str>,
+            suffix: Option<&'static str>,
+            now: OffsetDateTime,
+        }
+
+        let format = format_description::parse(
+            "[year]-[month]-[day] [hour]:[minute]:[second] [offset_hour \
+         sign:mandatory]:[offset_minute]:[offset_second]",
+        )
+        .unwrap();
+        let directory = tempfile::tempdir().expect("failed to create tempdir");
+
+        let test_cases = vec![
+            TestCase {
+                expected: "my_prefix.2025-02-16.log",
+                rotation: Rotation::WEEKLY,
+                prefix: Some("my_prefix"),
+                suffix: Some("log"),
+                now: OffsetDateTime::parse("2025-02-17 10:01:00 +00:00:00", &format).unwrap(),
+            },
+            // Make sure weekly rotation rounds to the preceding year when appropriate
+            TestCase {
+                expected: "my_prefix.2024-12-29.log",
+                rotation: Rotation::WEEKLY,
+                prefix: Some("my_prefix"),
+                suffix: Some("log"),
+                now: OffsetDateTime::parse("2025-01-01 10:01:00 +00:00:00", &format).unwrap(),
+            },
+            TestCase {
+                expected: "my_prefix.2025-02-17.log",
+                rotation: Rotation::DAILY,
+                prefix: Some("my_prefix"),
+                suffix: Some("log"),
+                now: OffsetDateTime::parse("2025-02-17 10:01:00 +00:00:00", &format).unwrap(),
+            },
+            TestCase {
+                expected: "my_prefix.2025-02-17-10.log",
+                rotation: Rotation::HOURLY,
+                prefix: Some("my_prefix"),
+                suffix: Some("log"),
+                now: OffsetDateTime::parse("2025-02-17 10:01:00 +00:00:00", &format).unwrap(),
+            },
+            TestCase {
+                expected: "my_prefix.2025-02-17-10-01.log",
+                rotation: Rotation::MINUTELY,
+                prefix: Some("my_prefix"),
+                suffix: Some("log"),
+                now: OffsetDateTime::parse("2025-02-17 10:01:00 +00:00:00", &format).unwrap(),
+            },
+            TestCase {
+                expected: "my_prefix.log",
+                rotation: Rotation::NEVER,
+                prefix: Some("my_prefix"),
+                suffix: Some("log"),
+                now: OffsetDateTime::parse("2025-02-17 10:01:00 +00:00:00", &format).unwrap(),
+            },
+        ];
+
+        for test_case in test_cases {
+            let (inner, _) = Inner::new(
+                test_case.now,
+                test_case.rotation.clone(),
+                directory.path(),
+                test_case.prefix.map(ToString::to_string),
+                test_case.suffix.map(ToString::to_string),
+                None,
+            )
+            .unwrap();
+            let path = inner.join_date(&test_case.now);
+
+            assert_eq!(path, test_case.expected);
+        }
+    }
+
+    #[test]
     #[should_panic(
         expected = "internal error: entered unreachable code: Rotation::NEVER is impossible to round."
     )]
     fn test_never_date_rounding() {
         let now = OffsetDateTime::now_utc();
-        let _ = Rotation::NEVER.round_date(&now);
+        let _ = Rotation::NEVER.round_date(now);
     }
 
     #[test]

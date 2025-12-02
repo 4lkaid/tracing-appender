@@ -4,13 +4,13 @@
 //!
 //! [`tracing`][tracing] is a framework for structured, event-based diagnostic information.
 //! `tracing-appender` allows events and spans to be recorded in a non-blocking manner through
-//! a dedicated logging thread. It also provides a [`RollingFileAppender`][file_appender] that can
+//! a dedicated logging thread. It also provides a [`RollingFileAppender`] that can
 //! be used with _or_ without the non-blocking writer.
 //!
 //! *Compiler support: [requires `rustc` 1.63+][msrv]*
 //!
 //! [msrv]: #supported-rust-versions
-//! [file_appender]: rolling::RollingFileAppender
+//! [`RollingFileAppender`]: rolling::RollingFileAppender
 //! [tracing]: https://docs.rs/tracing/
 //!
 //! # Usage
@@ -23,9 +23,9 @@
 //! ```
 //!
 //! This crate can be used in a few ways to record spans/events:
-//!  - Using a [`RollingFileAppender`][rolling_struct] to perform writes to a log file. This will block on writes.
-//!  - Using *any* type implementing [`std::io::Write`][write] in a non-blocking fashion.
-//!  - Using a combination of [`NonBlocking`][non_blocking] and [`RollingFileAppender`][rolling_struct] to allow writes to a log file
+//!  - Using a [`RollingFileAppender`] to perform writes to a log file. This will block on writes.
+//!  - Using *any* type implementing [`std::io::Write`] in a non-blocking fashion.
+//!  - Using a combination of [`NonBlocking`] and [`RollingFileAppender`] to allow writes to a log file
 //!    without blocking.
 //!
 //! ## File Appender
@@ -38,7 +38,7 @@
 //! [`Rotation::DAILY`](rolling::Rotation::DAILY).
 //!
 //! To create a non-rolling file appender, use
-//! [`tracing_appender::rolling::never(/*...*/)`](rolling::never) or
+//! [`tracing_appender_plus::rolling::never(/*...*/)`](rolling::never) or
 //! [`Rotation::NEVER`](rolling::Rotation::NEVER).
 //!
 //! The following example creates an hourly rotating file appender that writes to
@@ -46,11 +46,11 @@
 //!
 //! ```rust
 //! # fn docs() {
-//! let file_appender = tracing_appender::rolling::hourly("/some/directory", "prefix.log");
+//! let file_appender = tracing_appender_plus::rolling::hourly("/some/directory", "prefix.log");
 //! # }
 //! ```
 //!
-//! The file appender implements [`std::io::Write`][write]. To be used with
+//! The file appender implements [`std::io::Write`]. To be used with
 //! [`tracing_subscriber::FmtSubscriber`][fmt_subscriber], it must be combined with a
 //! [`MakeWriter`][make_writer] implementation to be able to record tracing spans/event.
 //!
@@ -64,18 +64,18 @@
 //!
 //! ```rust
 //! # fn doc() {
-//! let (non_blocking, _guard) = tracing_appender::non_blocking(std::io::stdout());
+//! let (non_blocking, _guard) = tracing_appender_plus::non_blocking(std::io::stdout());
 //! tracing_subscriber::fmt()
 //!     .with_writer(non_blocking)
 //!     .init();
 //! # }
 //! ```
-//! **Note:** `_guard` is a [`WorkerGuard`][guard] which is returned by [`tracing_appender::non_blocking`][non_blocking]
+//! **Note:** `_guard` is a [`WorkerGuard`] which is returned by [`tracing_appender_plus::non_blocking`][non_blocking]
 //! to ensure buffered logs are flushed to their output in the case of abrupt terminations of a process.
 //! See [`WorkerGuard` module][guard] for more details.
 //!
-//! The example below demonstrates the construction of a [`tracing_appender::non_blocking`][non_blocking]
-//! writer constructed with a [`std::io::Write`][write]:
+//! The example below demonstrates the construction of a [`tracing_appender_plus::non_blocking`][non_blocking]
+//! writer constructed with a [`std::io::Write`]:
 //!
 //! ```rust
 //! use std::io::Error;
@@ -95,7 +95,7 @@
 //! }
 //!
 //! # fn doc() {
-//! let (non_blocking, _guard) = tracing_appender::non_blocking(TestWriter);
+//! let (non_blocking, _guard) = tracing_appender_plus::non_blocking(TestWriter);
 //! tracing_subscriber::fmt()
 //!     .with_writer(non_blocking)
 //!     .init();
@@ -115,8 +115,8 @@
 //!
 //! ```rust
 //! # fn docs() {
-//! let file_appender = tracing_appender::rolling::hourly("/some/directory", "prefix.log");
-//! let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+//! let file_appender = tracing_appender_plus::rolling::hourly("/some/directory", "prefix.log");
+//! let (non_blocking, _guard) = tracing_appender_plus::non_blocking(file_appender);
 //! tracing_subscriber::fmt()
 //!     .with_writer(non_blocking)
 //!     .init();
@@ -138,7 +138,8 @@
 //! long as doing so complies with this policy.
 //!
 #![doc(
-    html_logo_url = "https://raw.githubusercontent.com/tokio-rs/tracing/master/assets/logo-type.png",
+    html_logo_url = "https://raw.githubusercontent.com/tokio-rs/tracing/main/assets/logo-type.png",
+    html_favicon_url = "https://raw.githubusercontent.com/tokio-rs/tracing/main/assets/favicon.ico",
     issue_tracker_base_url = "https://github.com/tokio-rs/tracing/issues/"
 )]
 #![cfg_attr(docsrs, deny(rustdoc::broken_intra_doc_links))]
@@ -186,7 +187,7 @@ pub(crate) mod sync;
 ///
 /// ``` rust
 /// # fn docs() {
-/// let (non_blocking, _guard) = tracing_appender::non_blocking(std::io::stdout());
+/// let (non_blocking, _guard) = tracing_appender_plus::non_blocking(std::io::stdout());
 /// let subscriber = tracing_subscriber::fmt().with_writer(non_blocking);
 /// tracing::subscriber::with_default(subscriber.finish(), || {
 ///    tracing::event!(tracing::Level::INFO, "Hello");

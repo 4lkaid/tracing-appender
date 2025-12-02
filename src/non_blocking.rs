@@ -14,9 +14,9 @@
 //! This function returns the default configuration. It is equivalent to:
 //!
 //! ```rust
-//! # use tracing_appender::non_blocking::{NonBlocking, WorkerGuard};
+//! # use tracing_appender_plus::non_blocking::{NonBlocking, WorkerGuard};
 //! # fn doc() -> (NonBlocking, WorkerGuard) {
-//! tracing_appender::non_blocking(std::io::stdout())
+//! tracing_appender_plus::non_blocking(std::io::stdout())
 //! # }
 //! ```
 //! [builder]: NonBlockingBuilder::default
@@ -31,15 +31,13 @@
 //! Unintentional drops of `WorkerGuard` remove the guarantee that logs will be flushed
 //! during a program's termination, in a panic or otherwise.
 //!
-//! See [`WorkerGuard`][worker_guard] for examples of using the guard.
-//!
-//! [worker_guard]: WorkerGuard
+//! See [`WorkerGuard`] for examples of using the guard.
 //!
 //! # Examples
 //!
 //! ``` rust
 //! # fn docs() {
-//! let (non_blocking, _guard) = tracing_appender::non_blocking(std::io::stdout());
+//! let (non_blocking, _guard) = tracing_appender_plus::non_blocking(std::io::stdout());
 //! let subscriber = tracing_subscriber::fmt().with_writer(non_blocking);
 //! tracing::subscriber::with_default(subscriber.finish(), || {
 //!    tracing::event!(tracing::Level::INFO, "Hello");
@@ -60,12 +58,11 @@ use tracing_subscriber::fmt::MakeWriter;
 
 /// The default maximum number of buffered log lines.
 ///
-/// If [`NonBlocking`][non-blocking] is lossy, it will drop spans/events at capacity.
-/// If [`NonBlocking`][non-blocking] is _not_ lossy,
-/// backpressure will be exerted on senders, causing them to block their
-/// respective threads until there is available capacity.
+/// If [`NonBlocking`] is lossy, it will drop spans/events at capacity.
+/// If [`NonBlocking`] is _not_ lossy, backpressure will be exerted on
+/// senders, causing them to block their respective threads until there
+/// is available capacity.
 ///
-/// [non-blocking]: NonBlocking
 /// Recommended to be a power of 2.
 pub const DEFAULT_BUFFERED_LINES_LIMIT: usize = 128_000;
 
@@ -90,7 +87,7 @@ pub const DEFAULT_BUFFERED_LINES_LIMIT: usize = 128_000;
 /// # #[clippy::allow(needless_doctest_main)]
 /// fn main () {
 /// # fn doc() {
-///     let (non_blocking, _guard) = tracing_appender::non_blocking(std::io::stdout());
+///     let (non_blocking, _guard) = tracing_appender_plus::non_blocking(std::io::stdout());
 ///     let subscriber = tracing_subscriber::fmt().with_writer(non_blocking);
 ///     tracing::subscriber::with_default(subscriber.finish(), || {
 ///         // Emit some tracing events within context of the non_blocking `_guard` and tracing subscriber
@@ -116,11 +113,10 @@ pub struct WorkerGuard {
 /// `NonBlocking` moves the writing out of an application's data path by sending spans and events
 /// to a dedicated logging thread.
 ///
-/// This struct implements [`MakeWriter`][make_writer] from the `tracing-subscriber`
+/// This struct implements [`MakeWriter`] from the `tracing-subscriber`
 /// crate. Therefore, it can be used with the [`tracing_subscriber::fmt`][fmt] module
 /// or with any other subscriber/layer implementation that uses the `MakeWriter` trait.
 ///
-/// [make_writer]: tracing_subscriber::fmt::MakeWriter
 /// [fmt]: mod@tracing_subscriber::fmt
 #[derive(Clone, Debug)]
 pub struct NonBlocking {
@@ -184,9 +180,7 @@ impl NonBlocking {
     }
 }
 
-/// A builder for [`NonBlocking`][non-blocking].
-///
-/// [non-blocking]: NonBlocking
+/// A builder for [`NonBlocking`].
 #[derive(Debug)]
 pub struct NonBlockingBuilder {
     buffered_lines_limit: usize,
