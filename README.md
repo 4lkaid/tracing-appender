@@ -16,6 +16,7 @@ tracing-appender = { package = "tracing-appender-plus", version = "0.2", feature
 
 | tracing-appender | tracing-appender-plus |
 | ---------------- | --------------------- |
-| v0.2.3           | v0.2.3                |
-| v0.2.3           | v0.2.4                |
-| v0.2.4           | v0.2.5                |
+| ~~v0.2.3~~       | ~~v0.2.3~~            |
+| ~~v0.2.3~~       | ~~v0.2.4~~            |
+| ~~v0.2.4~~       | ~~v0.2.5~~            |
+| v0.2.4           | v0.2.6                |

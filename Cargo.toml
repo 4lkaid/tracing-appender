@@ -1,6 +1,6 @@
 [package]
 name = "tracing-appender-plus"
-version = "0.2.5"
+version = "0.2.6"
 authors = [
     "Zeki Sherif <zekshi@amazon.com>",
     "Tokio Contributors <team@tokio.rs>",
